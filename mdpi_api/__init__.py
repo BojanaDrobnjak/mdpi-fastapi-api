@@ -1,0 +1,1 @@
+"""mdpi_api package."""

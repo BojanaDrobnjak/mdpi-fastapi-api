@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "mdpi-api"
+version = "0.1.0"
+description = "A FastAPI backend API for processing and storing data using Polars and PostgreSQL."
+authors = ["Bojana Drobnjak"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+python-decouple = "^3.8"
+fastapi = "^0.100.0"
+uvicorn = { version = "^0.22.0", extras = ["standard"] }
+pydantic = { version = "^1", extras=["dotenv"] }
+yarl = "^1.9.2"
+ujson = "^5.8.0"
+SQLAlchemy = {version = "^2.0.18", extras = ["asyncio"]}
+asyncpg = {version = "^0.28.0", extras = ["sa"]}
+aiofiles = "^23.1.0"
+httptools = "^0.6.0"
+loguru = "^0.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
