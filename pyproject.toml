@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 python-decouple = "^3.8"
-fastapi = "^0.100.0"
+fastapi = "0.109.1"
 uvicorn = { version = "^0.22.0", extras = ["standard"] }
 pydantic = { version = "^1", extras=["dotenv"] }
 yarl = "^1.9.2"
@@ -19,8 +19,9 @@ asyncpg = {version = "^0.28.0", extras = ["sa"]}
 aiofiles = "^23.1.0"
 httptools = "^0.6.0"
 loguru = "^0.7.0"
+greenlet = "^1.1.2"
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

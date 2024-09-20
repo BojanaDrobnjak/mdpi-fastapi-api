@@ -1,0 +1,35 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: prod
+    image: mdpi_api:${MDPI_API_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MDPI_API_HOST: ${MDPI_API_HOST}
+  db:
+    image: postgres:13.8-bullseye
+    hostname: mdpi_api_db-db
+    environment:
+      POSTGRES_PASSWORD: ${MDPI_API_DB_PASS}
+      POSTGRES_USER: ${MDPI_API_DB_USER}
+      POSTGRES_DB: ${MDPI_API_DB_BASE}
+    volumes:
+    - mdpi_api_db-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -h ${MDPI_API_DB_HOST} -d ${MDPI_API_DB_BASE} -U ${MDPI_API_DB_USER}
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+
+volumes:
+  mdpi_api_db-db-data:
+    name: mdpi_api_db-db-data

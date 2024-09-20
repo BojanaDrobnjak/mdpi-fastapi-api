@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    host: str = "127.0.0.1"
+    host: str = config("MDPI_API_HOST", default="0.0.0.0")
     port: int = 8000
     # quantity of workers for uvicorn
     workers_count: int = 1
@@ -40,12 +40,12 @@ class Settings(BaseSettings):
 
     log_level: LogLevel = LogLevel.INFO
     # Variables for the database
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_user: str = "mdpi_api"
-    db_pass: str = "mdpi_api"
-    db_base: str = "mdpi_api"
-    db_echo: bool = False
+    db_host: str = config("MDPI_API_DB_HOST")
+    db_port: int = config("MDPI_API_DB_PORT", cast=int)
+    db_user: str = config("MDPI_API_DB_USER")
+    db_pass: str = config("MDPI_API_DB_PASS")
+    db_base: str = config("MDPI_API_DB_BASE")
+    db_echo: bool = config("MDPI_API_DB_ECHO", cast=bool, default=False)
 
     @property
     def db_url(self) -> URL:
