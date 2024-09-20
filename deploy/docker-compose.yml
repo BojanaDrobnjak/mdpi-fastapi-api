@@ -13,6 +13,8 @@ services:
         condition: service_healthy
     environment:
       MDPI_API_HOST: ${MDPI_API_HOST}
+    ports:
+      - "8000:8000"
   db:
     image: postgres:13.8-bullseye
     hostname: mdpi_api_db-db
