@@ -39,3 +39,19 @@ But you have to rebuild image every time you modify `poetry.lock` or `pyproject.
 ```bash
 docker-compose -f deploy/docker-compose.yml --project-directory . build
 ```
+
+## Pre-commit
+
+To install pre-commit simply run inside the shell:
+```bash
+pre-commit install
+```
+
+pre-commit is very useful to check your code before publishing it.
+It's configured using .pre-commit-config.yaml file.
+
+By default it runs:
+* black (formats your code);
+* mypy (validates types);
+* isort (sorts imports in all files);
+* flake8 (spots possible bugs);

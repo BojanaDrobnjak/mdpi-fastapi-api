@@ -1,4 +1,3 @@
-from importlib import metadata
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -7,8 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from mdpi_api.logging import configure_logging
 from mdpi_api.web.api.router import api_router
-from mdpi_api.web.lifetime import (register_shutdown_event,
-                                   register_startup_event)
+from mdpi_api.web.lifetime import register_shutdown_event, register_startup_event
 
 APP_ROOT = Path(__file__).parent.parent
 

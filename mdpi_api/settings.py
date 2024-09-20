@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    host: str = config("MDPI_API_HOST", default="0.0.0.0")
+    host: str = config("MDPI_API_HOST")
     port: int = 8000
     # quantity of workers for uvicorn
     workers_count: int = 1
