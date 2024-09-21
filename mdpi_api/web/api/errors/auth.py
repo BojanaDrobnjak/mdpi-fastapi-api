@@ -24,3 +24,27 @@ class JWTError(HTTPExceptionResponseModelError):
         self.message = message
         self.detail = detail
         self.status_code = status_code
+
+
+class NotAuthorizedError(HTTPExceptionResponseModelError):
+    """Exception raised for not authorized user."""
+
+    def __init__(
+        self,
+        error_code: str = "",
+        message: str = "Not authorized",
+        detail: str = "",
+        status_code: int = status.HTTP_401_UNAUTHORIZED,
+    ) -> None:
+        """
+        Initialize NotAuthorizedError.
+
+        :param error_code: Error code.
+        :param message: Error message.
+        :param detail: Error detail.
+        :param status_code: Error status code.
+        """
+        self.error_code = error_code
+        self.message = message
+        self.detail = detail
+        self.status_code = status_code

@@ -15,7 +15,7 @@ class TokenResponse(BaseModel):
 class DecodedTokenResponse(BaseModel):
     """DTO for decoded token."""
 
-    sub: int
+    sub: str
     jti: str
     expires: float
     token_type: str

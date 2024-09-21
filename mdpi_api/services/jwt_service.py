@@ -9,6 +9,7 @@ from loguru import logger
 from mdpi_api.settings import Settings
 from mdpi_api.web.api.errors.auth import JWTError
 from mdpi_api.web.api.schemas.auth import DecodedTokenResponse
+from pydantic import UUID4
 
 jwt_settings = Settings().jwt
 
@@ -25,7 +26,7 @@ class JWTService:
 
     @staticmethod
     def sign_jwt(
-        user_id: int,
+        user_id: UUID4,
         token_type: JWTTokenTypeEnum = JWTTokenTypeEnum.ACCESS,
     ) -> str:
         """
@@ -43,7 +44,7 @@ class JWTService:
         jti = str(uuid.uuid4())
         return jwt.encode(
             {
-                "sub": user_id,
+                "sub": str(user_id),
                 "expires": time.time() + expiry_time,
                 "token_type": token_type.value,
                 "jti": jti,
