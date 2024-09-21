@@ -21,6 +21,8 @@ httptools = "^0.6.0"
 loguru = "^0.7.0"
 python-decouple = "^3.8"
 greenlet = "^1.1.2"
+itsdangerous = "^2.2.0"
+pyjwt = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"

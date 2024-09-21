@@ -62,6 +62,31 @@ class DatabaseSettings(BaseModel):
         )
 
 
+class JWTSettings(BaseModel):
+    """JWT settings."""
+
+    secret: str
+    algorithm: str
+    expiry_time: int
+    refresh_expiry_time: int
+    default_token_type: str = "access"
+
+
+class RateLimitSettings(BaseModel):
+    """Rate limit settings."""
+
+    capacity: int = 20
+    refill_rate: int = 10
+
+
+class SecuritySettings(BaseModel):
+    """Security settings."""
+
+    allowed_hosts: list[str]
+    cors_allowed_origins: list[str]
+    session_secret_key: str
+
+
 class Settings(BaseSettings):
     """
     Application settings.
@@ -81,9 +106,13 @@ class Settings(BaseSettings):
 
     # Current environment
     environment: str = config("MDPI_API_ENVIRONMENT")
+    default_locale: str = "en"
 
     logging: LogSettings = LogSettings()
     db: DatabaseSettings
+    jwt: JWTSettings
+    rate_limit: RateLimitSettings = RateLimitSettings()
+    security: SecuritySettings
 
     model_config = SettingsConfigDict(
         env_file=".env",
