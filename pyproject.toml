@@ -7,11 +7,11 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-python-decouple = "^3.8"
+python = "^3.10"
 fastapi = "0.109.1"
 uvicorn = { version = "^0.22.0", extras = ["standard"] }
-pydantic = { version = "^1", extras=["dotenv"] }
+pydantic = "^2"
+pydantic-settings = "^2"
 yarl = "^1.9.2"
 ujson = "^5.8.0"
 SQLAlchemy = {version = "^2.0.18", extras = ["asyncio"]}
@@ -19,21 +19,26 @@ asyncpg = {version = "^0.28.0", extras = ["sa"]}
 aiofiles = "^23.1.0"
 httptools = "^0.6.0"
 loguru = "^0.7.0"
+python-decouple = "^3.8"
 greenlet = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^7.1.1"
-mypy = "^1.11.2"
-isort = "^5.13.2"
-pre-commit = "^3.8.0"
-wemake-python-styleguide = "^0.19.2"
-black = "^24.8.0"
-autoflake = "^2.3.1"
+pytest = "^7.2.1"
+flake8 = "~7.0.0"
+mypy = "^1.10.1"
+isort = "^5.11.4"
+pre-commit = "^3.0.1"
+wemake-python-styleguide = "^0.18.0"
+black = "^22.12.0"
+autoflake = "^1.6.1"
+pytest-cov = "^4.0.0"
+anyio = "^3.6.2"
+pytest-env = "^0.8.1"
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-src_paths = ["mdpi_api",]
+src_paths = ["api",]
 
 [tool.mypy]
 strict = true
@@ -49,6 +54,21 @@ warn_return_any = false
 namespace_packages = true
 plugins = ['pydantic.mypy']
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore:.*unclosed.*:ResourceWarning",
+]
+env = [
+    "MDPI_API_ENVIRONMENT=pytest",
+    "MDPI_API_DB_BASE=testdb-sb",
+]
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+venvPath = "."
+venv = "venv"

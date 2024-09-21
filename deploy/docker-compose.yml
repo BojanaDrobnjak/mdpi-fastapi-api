@@ -13,20 +13,21 @@ services:
         condition: service_healthy
     environment:
       MDPI_API_HOST: ${MDPI_API_HOST}
+      MDPI_API_DB__HOST: mdpi_api-db
     ports:
-      - "8000:8000"
+    - "8000:8000"
   db:
     image: postgres:13.8-bullseye
-    hostname: mdpi_api_db-db
+    hostname: mdpi_api-db
     environment:
-      POSTGRES_PASSWORD: ${MDPI_API_DB_PASS}
-      POSTGRES_USER: ${MDPI_API_DB_USER}
-      POSTGRES_DB: ${MDPI_API_DB_BASE}
+      POSTGRES_PASSWORD: ${MDPI_API_DB__PASSWORD}
+      POSTGRES_USER: ${MDPI_API_DB__USER}
+      POSTGRES_DB: ${MDPI_API_DB__BASE}
     volumes:
     - mdpi_api_db-db-data:/var/lib/postgresql/data
     restart: always
     healthcheck:
-      test: pg_isready -h ${MDPI_API_DB_HOST} -d ${MDPI_API_DB_BASE} -U ${MDPI_API_DB_USER}
+      test: pg_isready -h ${MDPI_API_DB__HOST} -d ${MDPI_API_DB__BASE} -U ${MDPI_API_DB__USER}
       interval: 2s
       timeout: 3s
       retries: 40

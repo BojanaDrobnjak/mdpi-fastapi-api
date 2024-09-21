@@ -1,5 +1,4 @@
 from fastapi.routing import APIRouter
-
 from mdpi_api.web.api import docs, dummy, echo, monitoring
 
 api_router = APIRouter()

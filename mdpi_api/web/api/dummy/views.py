@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
-
 from mdpi_api.db.dao.dummy_dao import DummyDAO
 from mdpi_api.db.models.dummy_model import DummyModel
 from mdpi_api.web.api.dummy.schema import DummyModelDTO, DummyModelInputDTO

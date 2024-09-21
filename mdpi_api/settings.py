@@ -3,7 +3,8 @@ from pathlib import Path
 from tempfile import gettempdir
 
 from decouple import config
-from pydantic import BaseSettings
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from yarl import URL
 
 TEMP_DIR = Path(gettempdir())
@@ -20,32 +21,29 @@ class LogLevel(str, enum.Enum):  # noqa: WPS600
     FATAL = "FATAL"
 
 
-class Settings(BaseSettings):
-    """
-    Application settings.
+class LogSettings(BaseModel):
+    """Log settings."""
 
-    These parameters can be configured
-    with environment variables.
-    """
+    level: LogLevel = LogLevel.INFO
+    path: Path = TEMP_DIR / "api_{time:YYYY-MM-DD}.log"
+    rotation: str = "1 day"
+    retention: str = "30 days"
+    format: str = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | {level} | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan>:"
+        "<blue>[{correlation_id}]</blue> - <level>{message}</level>"
+    )
 
-    host: str = config("MDPI_API_HOST")
-    port: int = 8000
-    # quantity of workers for uvicorn
-    workers_count: int = 1
-    # Enable uvicorn reloading
-    reload: bool = False
 
-    # Current environment
-    environment: str = config("MDPI_API_ENVIRONMENT")
+class DatabaseSettings(BaseModel):
+    """Database settings."""
 
-    log_level: LogLevel = LogLevel.INFO
-    # Variables for the database
-    db_host: str = config("MDPI_API_DB_HOST")
-    db_port: int = config("MDPI_API_DB_PORT", cast=int)
-    db_user: str = config("MDPI_API_DB_USER")
-    db_pass: str = config("MDPI_API_DB_PASS")
-    db_base: str = config("MDPI_API_DB_BASE")
-    db_echo: bool = config("MDPI_API_DB_ECHO", cast=bool, default=False)
+    host: str
+    port: int
+    user: str
+    password: str
+    base: str
+    echo: bool
 
     @property
     def db_url(self) -> URL:
@@ -56,17 +54,43 @@ class Settings(BaseSettings):
         """
         return URL.build(
             scheme="postgresql+asyncpg",
-            host=self.db_host,
-            port=self.db_port,
-            user=self.db_user,
-            password=self.db_pass,
-            path=f"/{self.db_base}",
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.password,
+            path=f"/{self.base}",
         )
 
-    class Config:
-        env_file = ".env"
-        env_prefix = "MDPI_API_"
-        env_file_encoding = "utf-8"
+
+class Settings(BaseSettings):
+    """
+    Application settings.
+
+    These parameters can be configured
+    with environment variables.
+    """
+
+    title: str = "MDPI API"
+    description: str = "REST API for MDPI"
+    host: str = config("MDPI_API_HOST")
+    port: int = config("MDPI_API_PORT", cast=int)
+    # quantity of workers for uvicorn
+    workers_count: int = 1
+    # Enable uvicorn reloading
+    reload: bool = config("MDPI_API_RELOAD", cast=bool, default=False)
+
+    # Current environment
+    environment: str = config("MDPI_API_ENVIRONMENT")
+
+    logging: LogSettings = LogSettings()
+    db: DatabaseSettings
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="MDPI_API_",
+        env_file_encoding="utf-8",
+        env_nested_delimiter="__",
+    )
 
 
 settings = Settings()

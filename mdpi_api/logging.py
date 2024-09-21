@@ -3,8 +3,9 @@ import sys
 from typing import Union
 
 from loguru import logger
-
 from mdpi_api.settings import settings
+
+log_settings = settings.logging
 
 
 class InterceptHandler(logging.Handler):
@@ -59,5 +60,5 @@ def configure_logging() -> None:  # pragma: no cover
     logger.remove()
     logger.add(
         sys.stdout,
-        level=settings.log_level.value,
+        level=log_settings.level.value,
     )

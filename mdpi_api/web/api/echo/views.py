@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from mdpi_api.web.api.echo.schema import Message
 
 router = APIRouter()

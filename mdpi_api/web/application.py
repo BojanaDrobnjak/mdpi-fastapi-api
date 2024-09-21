@@ -3,7 +3,6 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
 from fastapi.staticfiles import StaticFiles
-
 from mdpi_api.logging import configure_logging
 from mdpi_api.web.api.router import api_router
 from mdpi_api.web.lifetime import register_shutdown_event, register_startup_event

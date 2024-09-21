@@ -1,12 +1,17 @@
 from typing import Awaitable, Callable
 
 from fastapi import FastAPI
+from loguru import logger
+from mdpi_api.db.meta import meta
+from mdpi_api.db.models import load_all_models
+from mdpi_api.settings import settings
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from mdpi_api.settings import settings
+db_settings = settings.db
 
 
-def _setup_db(app: FastAPI) -> None:  # pragma: no cover
+async def _setup_db(app: FastAPI) -> None:  # pragma: no cover
     """
     Creates connection to the database.
 
@@ -16,13 +21,30 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
 
     :param app: fastAPI application.
     """
-    engine = create_async_engine(str(settings.db_url), echo=settings.db_echo)
+    engine = create_async_engine(str(db_settings.db_url), echo=db_settings.echo)
     session_factory = async_sessionmaker(
         engine,
         expire_on_commit=False,
     )
     app.state.db_engine = engine
     app.state.db_session_factory = session_factory
+
+    # Check if the connection has been established
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+        logger.info("Database connection established.")
+    except Exception as exception:
+        logger.error(f"Failed to establish database connection: {exception}")
+
+
+async def _create_tables() -> None:  # pragma: no cover
+    """Populates tables in the database."""
+    load_all_models()
+    engine = create_async_engine(str(db_settings.db_url))
+    async with engine.begin() as connection:
+        await connection.run_sync(meta.create_all)
+    await engine.dispose()
 
 
 def register_startup_event(
@@ -41,7 +63,8 @@ def register_startup_event(
     @app.on_event("startup")
     async def _startup() -> None:  # noqa: WPS430
         app.middleware_stack = None
-        _setup_db(app)
+        await _setup_db(app)
+        await _create_tables()
         app.middleware_stack = app.build_middleware_stack()
         pass  # noqa: WPS420
 
