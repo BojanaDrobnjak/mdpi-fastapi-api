@@ -2,7 +2,7 @@ import uuid as uuid_lib
 
 from mdpi_api.db.base import Base
 from passlib.hash import bcrypt
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import UUID, String
 
 
@@ -16,9 +16,18 @@ class UserModel(Base):
         insert_default=uuid_lib.uuid4,
         primary_key=True,
         nullable=False,
+        index=True,
     )
-    email: Mapped[str] = mapped_column(String(), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(
+        String(),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
     password: Mapped[str] = mapped_column(String(), nullable=False)
+
+    # Relationships
+    favorite_cities = relationship("FavoriteCityModel", back_populates="user")
 
     def verify_password(self, password: str) -> bool:
         """

@@ -92,8 +92,8 @@ def get_app() -> FastAPI:
     register_startup_event(app)
     register_shutdown_event(app)
 
-    # Adds exception handlers.
     add_exception_handlers(app)
+    add_middlewares(app)
 
     # Main router for the API.
     app.include_router(router=api_router, prefix="/api")

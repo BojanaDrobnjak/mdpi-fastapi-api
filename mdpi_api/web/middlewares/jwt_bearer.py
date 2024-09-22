@@ -1,8 +1,9 @@
 from typing import Optional
 
-from fastapi import Request
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from loguru import logger
+from mdpi_api.services.auth_service import AuthService
 from mdpi_api.services.jwt_service import JWTService
 from mdpi_api.settings import Settings
 from mdpi_api.web.api.errors.auth import JWTError
@@ -28,6 +29,7 @@ class JWTBearer(HTTPBearer):
     async def __call__(
         self,
         request: Request,
+        auth_service: AuthService = Depends(),
     ) -> Optional[HTTPAuthorizationCredentials]:
         """
         Perform the JWT token authentication.
@@ -36,6 +38,7 @@ class JWTBearer(HTTPBearer):
         It extends the functionality of FastAPI's HTTPBearer.
 
         :param request: The FastAPI Request object.
+        :param auth_service: The AuthService object.
         :return: HTTPAuthorizationCredentials if the token is valid, None otherwise.
 
         :raises JWTError: If there are incorrect credentials values.
@@ -44,7 +47,8 @@ class JWTBearer(HTTPBearer):
             request,
         )
         if credentials:
-            await self.validate_credentials(credentials)
+            jwt_decoded = await self.validate_credentials(credentials)
+            await auth_service.authenticate_user(jwt_decoded, request)
             return credentials
 
         raise JWTError(detail="Invalid authorization code.")

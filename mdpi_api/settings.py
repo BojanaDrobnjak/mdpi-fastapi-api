@@ -87,6 +87,14 @@ class SecuritySettings(BaseModel):
     session_secret_key: str
 
 
+class WeatherAPISettings(BaseModel):
+    """Weather API settings."""
+
+    api_key: str
+    base_url: str
+    timeout: int
+
+
 class Settings(BaseSettings):
     """
     Application settings.
@@ -113,6 +121,7 @@ class Settings(BaseSettings):
     jwt: JWTSettings
     rate_limit: RateLimitSettings = RateLimitSettings()
     security: SecuritySettings
+    weather_api: WeatherAPISettings
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,0 +1,65 @@
+from typing import Any, Dict, Optional
+
+import httpx
+import polars as pl
+from fastapi import status
+from loguru import logger
+from mdpi_api.settings import Settings
+from mdpi_api.web.api.schemas.weather import WeatherDTO
+
+weather_api = Settings().weather_api
+
+KELVIN_TO_CELSIUS = 273.15
+
+
+class WeatherAPIClient:
+    """Client for interacting with the weather API."""
+
+    def __init__(self) -> None:
+        self.base_url = weather_api.base_url
+        self.api_key = weather_api.api_key
+
+    async def get_weather_for_city(self, *, city_name: str) -> Optional[WeatherDTO]:
+        """
+        Fetch weather data for a city by its name.
+
+        :param city_name: The name of the city.
+        :return: WeatherDTO if found, None otherwise.
+        """
+        url = f"{self.base_url}/weather?q={city_name}&appid={self.api_key}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+
+            if response.status_code == status.HTTP_200_OK:
+                data = response.json()
+                return self._manipulate_data(data)
+            logger.error(f"Failed to fetch weather for {city_name}: {response.text}")
+            return None
+
+    @staticmethod
+    def _manipulate_data(data: Dict[str, Any]) -> WeatherDTO:
+        """
+        Manipulate the data from the weather API.
+
+        :param data: The weather data.
+        :return: Manipulated weather data.
+        """
+        df = pl.DataFrame(data)
+        # Convert temperature from Kelvin to Celsius
+        df = df.with_columns(
+            [
+                pl.col("main.temp") - KELVIN_TO_CELSIUS,
+                pl.col("main.temp_min") - KELVIN_TO_CELSIUS,
+                pl.col("main.temp_max") - KELVIN_TO_CELSIUS,
+                pl.col("main.feels_like") - KELVIN_TO_CELSIUS,
+            ],
+        )
+        manipulated_data = df.to_dict(as_series=True)
+        logger.info(f"Manipulated weather data: {manipulated_data}")
+
+        return WeatherDTO(
+            city_id=manipulated_data["id"],
+            city_name=manipulated_data["name"],
+            data=manipulated_data,
+        )

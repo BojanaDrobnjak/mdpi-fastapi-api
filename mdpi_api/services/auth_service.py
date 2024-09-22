@@ -1,10 +1,12 @@
-from fastapi import Depends
+import uuid
+
+from fastapi import Depends, Request
 from loguru import logger
 from mdpi_api.db.dao.user_dao import UserDAO
 from mdpi_api.db.dependencies import get_db_session
 from mdpi_api.services.jwt_service import JWTService, JWTTokenTypeEnum
-from mdpi_api.web.api.errors.auth import NotAuthorizedError
-from mdpi_api.web.api.schemas.auth import TokenResponse
+from mdpi_api.web.api.errors.auth import NotAuthorizedError, UserNotFoundError
+from mdpi_api.web.api.schemas.auth import DecodedTokenResponse, TokenResponse
 from pydantic import UUID4
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +16,32 @@ class AuthService:
 
     def __init__(self, session: AsyncSession = Depends(get_db_session)):
         self.session = session
+
+    async def authenticate_user(
+        self,
+        jwt_decoded: DecodedTokenResponse,
+        request: Request,
+    ) -> bool:
+        """
+        Authenticate the user.
+
+        :param jwt_decoded: The decoded JWT token.
+        :param request: The FastAPI Request object.
+        :return: True if the user is authenticated, False otherwise.
+
+        :raises UserNotFoundError: If the user is not found.
+        """
+        user_id = jwt_decoded.sub
+
+        user_dao = UserDAO(self.session)
+        current_user = await user_dao.get_by_id(uuid.UUID(user_id))
+        logger.info(f"current_user: {current_user}")
+
+        if current_user is not None:
+            request.session["user_id"] = str(current_user.id)
+            return True
+
+        raise UserNotFoundError()
 
     async def verify_credentials(self, email: str, password: str) -> TokenResponse:
         """
@@ -31,14 +59,14 @@ class AuthService:
             user = await user_dao.get_by_email(email)
 
             if user and user.verify_password(password):
-                return await self.create_tokens(user.id)
+                return self.create_tokens(user.id)
             raise NotAuthorizedError("Invalid credentials")
         except Exception as exception:
             logger.error(f"Failed to verify credentials: {exception}")
             raise exception
 
     @staticmethod
-    async def create_tokens(user_id: UUID4) -> TokenResponse:
+    def create_tokens(user_id: UUID4) -> TokenResponse:
         """
         Helper function to create access and refresh tokens for a user.
 

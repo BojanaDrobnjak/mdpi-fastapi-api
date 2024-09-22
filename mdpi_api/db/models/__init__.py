@@ -12,3 +12,6 @@ def load_all_models() -> None:
     )
     for module in modules:
         __import__(module.name)  # noqa: WPS421
+
+
+load_all_models()

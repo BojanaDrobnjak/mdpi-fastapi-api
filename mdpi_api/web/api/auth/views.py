@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Query
 from loguru import logger
 from mdpi_api.services.auth_service import AuthService
 from mdpi_api.settings import Settings
-from mdpi_api.web.api.schemas.api_response import APIResponse
 from mdpi_api.web.api.schemas.auth import TokenResponse
+from mdpi_api.web.api.schemas.common import APIResponse
 from pydantic import EmailStr
 
 router = APIRouter()
