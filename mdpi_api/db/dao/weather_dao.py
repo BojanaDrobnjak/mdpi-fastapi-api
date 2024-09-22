@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from fastapi import Depends
 from loguru import logger
 from mdpi_api.db.dependencies import get_db_session
+from mdpi_api.db.models.city_model import CityModel
 from mdpi_api.db.models.weather_model import WeatherModel
-from sqlalchemy import and_, select
+from sqlalchemy import and_, join, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -14,7 +15,7 @@ class WeatherDAO:
     def __init__(self, session: AsyncSession = Depends(get_db_session)):
         self.session = session
 
-    async def get_weather_by_city_id(self, city_id: int) -> Optional[WeatherModel]:
+    async def get_weather_by_city_id(self, city_id: int) -> Optional[Dict[str, Any]]:
         """
         Get weather data for a city by city ID.
 
@@ -24,11 +25,31 @@ class WeatherDAO:
         :raises Exception: If there is an error during weather retrieval.
         """
         try:
-            stmt = select(WeatherModel).where(and_(WeatherModel.city_id == city_id))
+            stmt = (
+                select(
+                    WeatherModel.id,
+                    WeatherModel.city_id,
+                    CityModel.name.label("city_name"),
+                    WeatherModel.data,
+                )
+                .select_from(
+                    join(WeatherModel, CityModel, WeatherModel.city_id == CityModel.id),
+                )
+                .where(and_(WeatherModel.city_id == city_id))
+            )
+
             result = await self.session.execute(stmt)
-            weather = result.scalars().first()
-            logger.info(f"Got weather by city ID {city_id}: {weather}")
-            return weather
+            row = result.first()
+
+            if row:
+                weather_data = {
+                    "city_id": row.city_id,
+                    "city_name": row.city_name,
+                    "data": row.data,
+                }
+                logger.info(f"Got weather by city ID {city_id}: {weather_data}")
+                return weather_data
+            return None
         except Exception as exception:
             logger.error(f"Failed to get weather by city ID: {exception}")
             raise exception

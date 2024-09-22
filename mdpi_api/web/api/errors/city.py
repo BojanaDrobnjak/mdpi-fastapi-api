@@ -48,3 +48,27 @@ class CityNotFoundError(HTTPExceptionResponseModelError):
         self.message = message
         self.detail = detail
         self.status_code = status_code
+
+
+class FavoriteCityAlreadyExistsError(HTTPExceptionResponseModelError):
+    """Exception raised for city already exists."""
+
+    def __init__(
+        self,
+        error_code: str = "",
+        message: str = "Favorite city already exists",
+        detail: str = "",
+        status_code: int = status.HTTP_409_CONFLICT,
+    ) -> None:
+        """
+        Initialize JWTError.
+
+        :param error_code: Error code.
+        :param message: Error message.
+        :param detail: Error detail.
+        :param status_code: Error status code.
+        """
+        self.error_code = error_code
+        self.message = message
+        self.detail = detail
+        self.status_code = status_code

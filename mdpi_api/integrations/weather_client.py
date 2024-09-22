@@ -1,10 +1,11 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import httpx
 import polars as pl
 from fastapi import status
 from loguru import logger
 from mdpi_api.settings import Settings
+from mdpi_api.web.api.errors.weather import WeatherAPIError
 from mdpi_api.web.api.schemas.weather import WeatherDTO
 
 weather_api = Settings().weather_api
@@ -19,14 +20,16 @@ class WeatherAPIClient:
         self.base_url = weather_api.base_url
         self.api_key = weather_api.api_key
 
-    async def get_weather_for_city(self, *, city_name: str) -> Optional[WeatherDTO]:
+    async def get_weather_for_city(self, *, city_name: str) -> WeatherDTO:
         """
         Fetch weather data for a city by its name.
 
         :param city_name: The name of the city.
         :return: WeatherDTO if found, None otherwise.
+
+        :raises WeatherAPIError: If there is an error during weather retrieval.
         """
-        url = f"{self.base_url}/weather?q={city_name}&appid={self.api_key}"
+        url = f"{self.base_url}?q={city_name}&appid={self.api_key}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -35,7 +38,7 @@ class WeatherAPIClient:
                 data = response.json()
                 return self._manipulate_data(data)
             logger.error(f"Failed to fetch weather for {city_name}: {response.text}")
-            return None
+            raise WeatherAPIError(detail="Failed to fetch weather data.")
 
     @staticmethod
     def _manipulate_data(data: Dict[str, Any]) -> WeatherDTO:
@@ -45,17 +48,22 @@ class WeatherAPIClient:
         :param data: The weather data.
         :return: Manipulated weather data.
         """
-        df = pl.DataFrame(data)
+        main_data = data.pop("main", {})
+        df_main = pl.DataFrame([main_data])
         # Convert temperature from Kelvin to Celsius
-        df = df.with_columns(
+        df_main = df_main.with_columns(
             [
-                pl.col("main.temp") - KELVIN_TO_CELSIUS,
-                pl.col("main.temp_min") - KELVIN_TO_CELSIUS,
-                pl.col("main.temp_max") - KELVIN_TO_CELSIUS,
-                pl.col("main.feels_like") - KELVIN_TO_CELSIUS,
+                (pl.col("temp") - KELVIN_TO_CELSIUS).round(0).alias("temp"),
+                (pl.col("temp_min") - KELVIN_TO_CELSIUS).round(0).alias("temp_min"),
+                (pl.col("temp_max") - KELVIN_TO_CELSIUS).round(0).alias("temp_max"),
+                (pl.col("feels_like") - KELVIN_TO_CELSIUS).round(0).alias("feels_like"),
             ],
         )
-        manipulated_data = df.to_dict(as_series=True)
+        df_other = pl.DataFrame([data])
+        # Combine the two dataframes
+        df = df_other.hstack(df_main)
+
+        manipulated_data = {col: df[col].to_list()[0] for col in df.columns}
         logger.info(f"Manipulated weather data: {manipulated_data}")
 
         return WeatherDTO(

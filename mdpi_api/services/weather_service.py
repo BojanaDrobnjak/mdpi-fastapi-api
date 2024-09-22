@@ -1,4 +1,3 @@
-from docopt import Optional
 from fastapi import Depends
 from loguru import logger
 from mdpi_api.db.dao.city_dao import CityDAO
@@ -20,7 +19,7 @@ class WeatherService:
         self.weather_dao = WeatherDAO(session)
         self.weather_client = WeatherAPIClient()
 
-    async def get_weather_by_city_id(self, city_id: int) -> Optional[WeatherDTO]:
+    async def get_weather_by_city_id(self, city_id: int) -> WeatherDTO:
         """
         Get weather data for a city by city ID.
 
@@ -48,5 +47,4 @@ class WeatherService:
                 ),
             )
             return api_result
-
-        return WeatherDTO.from_orm(weather) if weather else None
+        return WeatherDTO(**weather)

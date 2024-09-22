@@ -5,9 +5,13 @@ from loguru import logger
 from mdpi_api.db.dependencies import get_db_session
 from mdpi_api.db.models.city_model import CityModel
 from mdpi_api.db.models.favorite_cities_model import FavoriteCityModel
-from mdpi_api.web.api.errors.city import FavoriteCityNotFoundError
+from mdpi_api.web.api.errors.city import (
+    FavoriteCityAlreadyExistsError,
+    FavoriteCityNotFoundError,
+)
 from pydantic import UUID4
 from sqlalchemy import and_, delete, insert, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -74,7 +78,7 @@ class CityDAO:
                 .join(FavoriteCityModel, CityModel.id == FavoriteCityModel.city_id)
                 .where(FavoriteCityModel.user_id == user_id),
             )
-            cities = result.fetchall()
+            cities = result.mappings().all()
             return [dict(city) for city in cities]
         except Exception as exception:
             logger.error(f"Failed to get favorite cities: {exception}")
@@ -87,6 +91,7 @@ class CityDAO:
         :param user_id: ID of the user.
         :param city_id: ID of the city.
 
+        :raises FavoriteCityAlreadyExistsError: If the city already exists in favorites.
         :raises Exception: If there is an error during city addition.
         """
         try:
@@ -96,6 +101,12 @@ class CityDAO:
             )
             await self.session.execute(stmt)
             await self.session.commit()
+        except IntegrityError as ie:
+            logger.error(f"City already exists in favorites: {ie}")
+            await self.session.rollback()
+            raise FavoriteCityAlreadyExistsError(
+                detail=f"City with ID {city_id} already exists in favorites.",
+            )
         except Exception as exception:
             logger.error(f"Failed to add favorite city: {exception}")
             raise exception

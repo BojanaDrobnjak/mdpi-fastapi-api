@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from loguru import logger
 from mdpi_api.db.meta import meta
 from mdpi_api.db.models import load_all_models
+from mdpi_api.db.seeders.initial_data import seed_data
 from mdpi_api.settings import settings
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -65,7 +66,8 @@ def register_startup_event(
         app.middleware_stack = None
         await _setup_db(app)
         app.middleware_stack = app.build_middleware_stack()
-        pass  # noqa: WPS420
+        async with app.state.db_session_factory() as session:
+            await seed_data(session)
 
     return _startup
 

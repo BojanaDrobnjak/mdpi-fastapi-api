@@ -1,7 +1,7 @@
 import uuid
 
 from mdpi_api.db.base import Base
-from sqlalchemy import UUID, BigInteger, Boolean, ForeignKey, Integer
+from sqlalchemy import UUID, BigInteger, Boolean, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -34,6 +34,8 @@ class FavoriteCityModel(Base):
         nullable=False,
         default=False,
     )
+
+    __table_args__ = (UniqueConstraint("user_id", "city_id", name="unique_user_city"),)
 
     # Relationships
     user = relationship("UserModel", back_populates="favorite_cities")
