@@ -64,7 +64,6 @@ def register_startup_event(
     async def _startup() -> None:  # noqa: WPS430
         app.middleware_stack = None
         await _setup_db(app)
-        await _create_tables()
         app.middleware_stack = app.build_middleware_stack()
         pass  # noqa: WPS420
 

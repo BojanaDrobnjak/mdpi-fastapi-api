@@ -19,6 +19,8 @@ services:
   db:
     image: postgres:13.8-bullseye
     hostname: mdpi_api-db
+    ports:
+    - "5432:5432"
     environment:
       POSTGRES_PASSWORD: ${MDPI_API_DB__PASSWORD}
       POSTGRES_USER: ${MDPI_API_DB__USER}
@@ -32,6 +34,17 @@ services:
       timeout: 3s
       retries: 40
 
+  migrator:
+    image: mdpi_api:${MDPI_API_VERSION:-latest}
+    restart: "no"
+    command: alembic upgrade head
+    env_file:
+    - .env
+    environment:
+      MDPI_API_DB__HOST: mdpi_api-db
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   mdpi_api_db-db-data:
