@@ -1,0 +1,28 @@
+site_name: "MDPI API Documentation"
+theme:
+  name: material
+  logo: "assets/logo.svg"
+  palette:
+    scheme: default
+    primary: "purple"
+    accent: "pink"
+  font:
+    text: "Roboto"
+    code: "Fira Code"
+nav:
+- Home: index.md
+- Getting Started: getting-started.md
+- Important Links: links.md
+- API Reference:
+  - Authentication: api/auth.md
+  - Cities: api/cities.md
+  - Favorites: api/favorites.md
+plugins:
+- search
+- mkdocstrings:
+    default_handler: python
+markdown_extensions:
+- admonition
+- codehilite
+- toc:
+    permalink: true
