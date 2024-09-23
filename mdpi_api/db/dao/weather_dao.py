@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from fastapi import Depends
@@ -15,7 +16,7 @@ class WeatherDAO:
     def __init__(self, session: AsyncSession = Depends(get_db_session)):
         self.session = session
 
-    async def get_weather_by_city_id(self, city_id: int) -> Optional[Dict[str, Any]]:
+    async def get_current_weather(self, city_id: int) -> Optional[Dict[str, Any]]:
         """
         Get weather data for a city by city ID.
 
@@ -24,6 +25,9 @@ class WeatherDAO:
 
         :raises Exception: If there is an error during weather retrieval.
         """
+        # Get the start time of the current hour, we only want the latest weather data
+        current_time = datetime.utcnow()
+        hour_start = current_time.replace(minute=0, second=0, microsecond=0)
         try:
             stmt = (
                 select(
@@ -35,7 +39,13 @@ class WeatherDAO:
                 .select_from(
                     join(WeatherModel, CityModel, WeatherModel.city_id == CityModel.id),
                 )
-                .where(and_(WeatherModel.city_id == city_id))
+                .where(
+                    and_(
+                        WeatherModel.city_id == city_id,
+                        WeatherModel.created_at >= hour_start,
+                        WeatherModel.created_at < current_time,
+                    ),
+                )
             )
 
             result = await self.session.execute(stmt)
@@ -66,6 +76,7 @@ class WeatherDAO:
             self.session.add(weather)
             await self.session.flush()
             await self.session.refresh(weather)
+            await self.session.commit()
             logger.info(f"Inserted weather: {weather}")
         except Exception as exception:
             await self.session.rollback()

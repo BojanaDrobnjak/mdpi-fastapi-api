@@ -59,6 +59,27 @@ class CityDAO:
             logger.error(f"Failed to get cities: {exception}")
             raise exception
 
+    async def get_all_favorite_cities(self) -> List[CityModel]:
+        """
+        Get all favorite cities.
+
+        :return: List of favorite cities.
+
+        :raises Exception: If there is an error during city retrieval.
+        """
+        try:
+            result = await self.session.execute(
+                select(CityModel)
+                .join(FavoriteCityModel, CityModel.id == FavoriteCityModel.city_id)
+                .distinct()
+                .order_by(CityModel.name),
+            )
+            cities = result.scalars().all()
+            return list(cities)
+        except Exception as exception:
+            logger.error(f"Failed to get all favorite cities: {exception}")
+            raise exception
+
     async def get_favorite_cities(self, user_id: UUID4) -> List[Dict[str, Any]]:
         """
         Get all favorite cities for a user.
