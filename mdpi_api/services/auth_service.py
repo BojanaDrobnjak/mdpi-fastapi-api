@@ -60,7 +60,7 @@ class AuthService:
 
             if user and user.verify_password(password):
                 return self.create_tokens(user.id)
-            raise NotAuthorizedError("Invalid credentials")
+            raise NotAuthorizedError(detail="Invalid credentials")
         except Exception as exception:
             logger.error(f"Failed to verify credentials: {exception}")
             raise exception

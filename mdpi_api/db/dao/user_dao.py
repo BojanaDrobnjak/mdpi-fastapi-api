@@ -48,9 +48,7 @@ class UserDAO:
             result = await self.session.execute(
                 select(UserModel).where(and_(UserModel.id == user_id)),
             )
-            user = result.scalar()
-            logger.info(f"User: {result}")
-            return user
+            return result.scalar()
         except Exception as exception:
             logger.error(f"Failed to retrieve user: {exception}")
             raise exception

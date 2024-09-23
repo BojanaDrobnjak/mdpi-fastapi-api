@@ -24,12 +24,12 @@ services:
     environment:
       POSTGRES_PASSWORD: ${MDPI_API_DB__PASSWORD}
       POSTGRES_USER: ${MDPI_API_DB__USER}
-      POSTGRES_DB: ${MDPI_API_DB__BASE}
+      POSTGRES_DB: mdpi_api_db
     volumes:
     - mdpi_api_db-db-data:/var/lib/postgresql/data
-    restart: always
+    restart: unless-stopped
     healthcheck:
-      test: pg_isready -h ${MDPI_API_DB__HOST} -d ${MDPI_API_DB__BASE} -U ${MDPI_API_DB__USER}
+      test: pg_isready -h ${MDPI_API_DB__HOST} -d mdpi_api_db -U ${MDPI_API_DB__USER}
       interval: 2s
       timeout: 3s
       retries: 40
