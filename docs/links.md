@@ -7,7 +7,7 @@ Here is a list of useful links that can help you during your development process
 - **GitHub Repository**: [MDPI API GitHub Repo](<https://github.com/BojanaDrobnjak/mdpi-fastapi-api>)
 - **Swagger UI (API Documentation)**: [Swagger UI](<http://http://ec2-35-158-17-70.eu-central-1.compute.amazonaws.com:8000/api/docs>)
 - **ReDoc (Alternative API Documentation)**: [ReDoc](<http://http://ec2-35-158-17-70.eu-central-1.compute.amazonaws.com:8000/api/redoc>)
-- **MkDocs Site**: [MDPI API Documentation](<http://http://ec2-35-158-17-70.eu-central-1.compute.amazonaws.com:8001>)
+- **MkDocs** (If you run it): [MDPI API Documentation](<http://localhost:8001>)
 - **Weather API (OpenWeatherMap)**: [OpenWeatherMap API](<https://openweathermap.org/api>)
 
 ## **Project Technologies & Documentation**
