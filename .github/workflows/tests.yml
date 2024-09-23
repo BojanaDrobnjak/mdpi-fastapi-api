@@ -10,7 +10,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -24,7 +24,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -38,7 +38,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -47,8 +47,8 @@ jobs:
       run: poetry run mypy .
   pytest:
     runs-on: ubuntu-latest
+    environment: production
     services:
-
       mdpi_api-db:
         image: postgres:13.8-bullseye
         env:
@@ -67,7 +67,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
