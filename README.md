@@ -2,6 +2,32 @@
 
 This is a FastAPI project that provides an API for MDPI.
 
+## Configuration
+
+Before installing the dependencies, create a .env file based on the provided .env.example file:
+
+```bash
+cp .env.example .env
+```
+
+### Database Setup
+
+If you’re running the project locally, make sure you have a PostgreSQL database running. The configuration for the database should match the values specified in your .env file. For example, start your PostgreSQL server and ensure it is accessible with the following credentials (replace these with your values from .env):
+
+```bash
+	•	MDPI_API_DB_BASE: mdpi_api_db
+	•	MDPI_API_DB_USER: mdpi_api_user
+	•	MDPI_API_DB_PASSWORD: mdpi_api_pass
+	•	MDPI_API_DB_HOST: localhost
+	•	MDPI_API_DB_PORT: 5432
+```
+
+You can use the psql command to start your database:
+
+```bash
+psql -h localhost -U mdpi_api_user -d mdpi_api_db -W
+```
+
 ## Poetry
 
 This project uses poetry. It's a dependency management tool.
@@ -59,6 +85,14 @@ alembic revision --autogenerate -m "Your message"
 
 # For empty file generation.
 alembic revision
+```
+
+#### Automatic Migration with Docker
+
+When you run and build your Docker container using the provided docker-compose.yml file, pending migrations will be automatically applied with the following command:
+
+```bash
+alembic upgrade head
 ```
 
 ## Running tests
