@@ -75,6 +75,27 @@ jobs:
     - name: Run pytest check
       run: poetry run pytest -vv --cov="mdpi_api" .
       env:
+        MDPI_API_ENVIRONMENT: dev
+        MDPI_API_RELOAD: "true"
         MDPI_API_HOST: "0.0.0.0"
-        MDPI_API_PORT: 8000
-        MDPI_API_DB_HOST: localhost
+        MDPI_API_PORT: "8000"
+
+        MDPI_API_DB__HOST: "localhost"
+        MDPI_API_DB__PORT: "5432"
+        MDPI_API_DB__USER: ${{ secrets.DB_USER }}
+        MDPI_API_DB__PASSWORD: ${{ secrets.DB_PASS }}
+        MDPI_API_DB__BASE: ${{ secrets.DB_BASE }}
+        MDPI_API_DB__ECHO: "false"
+
+        MDPI_API_JWT__SECRET: ${{ secrets.JWT_SECRET }}
+        MDPI_API_JWT__ALGORITHM: "HS256"
+        MDPI_API_JWT__EXPIRY_TIME: "900"
+        MDPI_API_JWT__REFRESH_EXPIRY_TIME: "604800"
+
+        MDPI_API_SECURITY__ALLOWED_HOSTS: '["localhost", "127.0.0.1", "0.0.0.0", "test"]'
+        MDPI_API_SECURITY__CORS_ALLOWED_ORIGINS: '["http://localhost:8000", "http://127.0.0.1:8000", "http://test"]'
+        MDPI_API_SECURITY__SESSION_SECRET_KEY: ${{ secrets.SESSION_SECRET_KEY }}
+
+        MDPI_API_WEATHER_API__API_KEY: ${{ secrets.WEATHER_API_KEY }}
+        MDPI_API_WEATHER_API__BASE_URL: "http://api.openweathermap.org/data/2.5/weather"
+        MDPI_API_WEATHER_API__TIMEOUT: "5"

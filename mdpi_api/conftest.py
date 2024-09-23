@@ -1,7 +1,6 @@
 from typing import Any, AsyncGenerator
 
 import pytest
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from httpx import AsyncClient
 from mdpi_api.db.dependencies import get_db_session
@@ -12,12 +11,6 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-
-
-@pytest.fixture(scope="session", autouse=True)
-def load_env() -> None:
-    """Load environment variables from .env file."""
-    load_dotenv()
 
 
 @pytest.fixture(scope="session")
