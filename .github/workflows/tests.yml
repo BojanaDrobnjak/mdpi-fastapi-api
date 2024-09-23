@@ -76,4 +76,5 @@ jobs:
       run: poetry run pytest -vv --cov="mdpi_api" .
       env:
         MDPI_API_HOST: "0.0.0.0"
+        MDPI_API_PORT: 8000
         MDPI_API_DB_HOST: localhost
